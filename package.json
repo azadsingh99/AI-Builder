@@ -1,15 +1,30 @@
 {
   "name": "my-crud-builder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
-    "start" : "nodemon index.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "mongoose",
+    "crud",
+    "dynamic",
+    "model",
+    "generator",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "description": "A dynamic CRUD model generator using Mongoose.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azadsingh99/AI-Builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/azadsingh99/AI-Builder/issues"
+  },
+  "homepage": "https://github.com/azadsingh99/AI-Builder#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
