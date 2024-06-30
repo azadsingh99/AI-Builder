@@ -1,6 +1,6 @@
 {
   "name": "my-crud-builder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/azadsingh99/AI-Builder#readme",
   "dependencies": {
+    "archiver": "^7.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

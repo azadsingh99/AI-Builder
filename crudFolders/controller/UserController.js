@@ -7,7 +7,7 @@
                     const UserObject = {name: name,
 email: email,
 age: age,
-createdAt: createdAt}
+createdAt: createdAt};
                     const newUser = new User(UserObject);
                     await newUser.save();
 
@@ -48,7 +48,6 @@ createdAt: createdAt};
                 }
             };
 
-            
             const getUserById = async (req, res) => {
                 try {
                     const Users = await User.findById(req.params.id);
@@ -62,7 +61,6 @@ createdAt: createdAt};
                 }
             };
 
-             
             const Userdeletion = async (req, res) => {
                 try {
                     const Users = await User.findByIdAndDelete(req.params.id);

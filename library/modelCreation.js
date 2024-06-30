@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
+const archiver = require('archiver');
 
 const generateModelIndividually = (modelName, fields) => {
     try {
@@ -43,8 +44,8 @@ const generateModelIndividually = (modelName, fields) => {
             const mongoose = require('mongoose');
             const ${modelName}Schema = new mongoose.Schema(${JSON.stringify(schemaDefinition, null, 2)});
             module.exports = mongoose.model('${modelName}', ${modelName}Schema);
-        `
-        const folderPath = path.join(__dirname, '../crud/model');
+        `;
+        const folderPath = path.join(__dirname, '../crudFolders/model');
 
         if (!fs.existsSync(folderPath))
             fs.mkdirSync(folderPath, { recursive: true });
@@ -63,15 +64,18 @@ const generateCrudRouter = async (name) => {
     const routeCode = `
         const express = require('express');
         const router = express.Router();
+        const { ${name}Creation, ${name}Updation, ${name}getAll, get${name}ById, ${name}deletion } = require('../controller/${name}Controller');
 
-        router.post('/create/${name}', ${name}Creation);
-        router.get('/get/${name}/?', ${name}Get);
-        router.patch('/update/${name}', ${name}Updation);
-        router.delete('/delete/${name}', ${name}Deletion);
+        router.post('/create', ${name}Creation);
+        router.get('/', ${name}getAll);
+        router.get('/:id', get${name}ById);
+        router.patch('/:id', ${name}Updation);
+        router.delete('/:id', ${name}deletion);
+
         module.exports = router;
-    `
+    `;
 
-    const folderPath = path.join(__dirname, '../crud/router');
+    const folderPath = path.join(__dirname, '../crudFolders/router');
     if (!fs.existsSync(folderPath))
         fs.mkdirSync(folderPath, { recursive: true });
 
@@ -90,7 +94,6 @@ const crudControllerCreation = (modelName, fields) => {
         const fieldNames = fields.map(field => Object.keys(field)[0]);
         const destructuredFieldsString = getDestructuredFieldsString(fieldNames);
         const objectOfModel = fieldNames.map(fieldName => `${fieldName}: ${fieldName}`).join(',\n');
-                            
 
         const controllerCode = `
             const ${modelName} = require('../model/${modelName}.js');
@@ -98,7 +101,7 @@ const crudControllerCreation = (modelName, fields) => {
                 try{
                     const { ${fieldNames.join(', ')} } = req.body;
 
-                    const ${modelName}Object = {${objectOfModel}}
+                    const ${modelName}Object = {${objectOfModel}};
                     const new${modelName} = new ${modelName}(${modelName}Object);
                     await new${modelName}.save();
 
@@ -136,7 +139,6 @@ const crudControllerCreation = (modelName, fields) => {
                 }
             };
 
-            
             const get${modelName}ById = async (req, res) => {
                 try {
                     const ${modelName}s = await ${modelName}.findById(req.params.id);
@@ -150,7 +152,6 @@ const crudControllerCreation = (modelName, fields) => {
                 }
             };
 
-             
             const ${modelName}deletion = async (req, res) => {
                 try {
                     const ${modelName}s = await ${modelName}.findByIdAndDelete(req.params.id);
@@ -171,9 +172,9 @@ const crudControllerCreation = (modelName, fields) => {
                 get${modelName}ById,
                 ${modelName}deletion
             }
-        `
+        `;
 
-        const folderPath = path.join(__dirname, '../crud/controller');
+        const folderPath = path.join(__dirname, '../crudFolders/controller');
         if (!fs.existsSync(folderPath))
             fs.mkdirSync(folderPath, { recursive: true });
 
@@ -186,19 +187,42 @@ const crudControllerCreation = (modelName, fields) => {
     }
 }
 
+const zipFolder = (folderPath, zipFilePath) => {
+    return new Promise((resolve, reject) => {
+        const output = fs.createWriteStream(zipFilePath);
+        const archive = archiver('zip', {
+            zlib: { level: 9 }  
+        });
+
+        output.on('close', () => resolve());
+        archive.on('error', (err) => reject(err));
+
+        archive.pipe(output);
+        archive.directory(folderPath, false);
+        archive.finalize();
+    });
+};
+
 const crudBuilderInitialized = async (models) => {
     try {
         for (let model of models) {
             const name = model.name;
-            const fields = model.fields
+            const fields = model.fields;
 
-            console.log('Model Creation Initialized......')
+            console.log('Model Creation Initialized......');
             await generateModelIndividually(name, fields);
-            console.log('Router Ceration Initialized......')
+            console.log('Router Creation Initialized......');
             await generateCrudRouter(name);
             await crudControllerCreation(name, fields);
-
         }
+
+        const crudFolderPath = path.join(__dirname, '../crudFolders');
+        const zipFilePath = path.join(__dirname, '../crudFolders.zip');
+
+        await zipFolder(crudFolderPath, zipFilePath);
+
+        // Return the URL or path to the zip file
+        return `http://localhost:3001/path-to-zip/${path.basename(zipFilePath)}`;
     } catch (err) {
         console.log(err);
         return err;

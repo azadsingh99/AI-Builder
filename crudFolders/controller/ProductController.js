@@ -7,7 +7,7 @@
                     const ProductObject = {title: title,
 price: price,
 description: description,
-inStock: inStock}
+inStock: inStock};
                     const newProduct = new Product(ProductObject);
                     await newProduct.save();
 
@@ -48,7 +48,6 @@ inStock: inStock};
                 }
             };
 
-            
             const getProductById = async (req, res) => {
                 try {
                     const Products = await Product.findById(req.params.id);
@@ -62,7 +61,6 @@ inStock: inStock};
                 }
             };
 
-             
             const Productdeletion = async (req, res) => {
                 try {
                     const Products = await Product.findByIdAndDelete(req.params.id);

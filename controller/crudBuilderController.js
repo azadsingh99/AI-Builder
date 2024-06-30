@@ -6,7 +6,7 @@ const crudBuilder = async(req, res) => {
         console.log('Starting with the process of creating the model....')
         const modelCreationResponse = await crudBuilderInitialized(modelData);
 
-        return res.status(200).json('Creation Successfull');
+        return res.status(200).json(modelCreationResponse);
     }catch(err){
         console.log('ERROR ::: ', err);
         return res.status(500).json({message: err.message});
