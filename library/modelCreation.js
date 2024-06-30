@@ -44,7 +44,7 @@ const generateModelIndividually = (modelName, fields) => {
             const ${modelName}Schema = new mongoose.Schema(${JSON.stringify(schemaDefinition, null, 2)});
             module.exports = mongoose.model('${modelName}', ${modelName}Schema);
         `
-        const folderPath = path.join(__dirname, '../model');
+        const folderPath = path.join(__dirname, '../crud/model');
 
         if (!fs.existsSync(folderPath))
             fs.mkdirSync(folderPath, { recursive: true });
@@ -71,7 +71,7 @@ const generateCrudRouter = async (name) => {
         module.exports = router;
     `
 
-    const folderPath = path.join(__dirname, '../route');
+    const folderPath = path.join(__dirname, '../crud/router');
     if (!fs.existsSync(folderPath))
         fs.mkdirSync(folderPath, { recursive: true });
 
@@ -173,7 +173,7 @@ const crudControllerCreation = (modelName, fields) => {
             }
         `
 
-        const folderPath = path.join(__dirname, '../controller');
+        const folderPath = path.join(__dirname, '../crud/controller');
         if (!fs.existsSync(folderPath))
             fs.mkdirSync(folderPath, { recursive: true });
 
