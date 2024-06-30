@@ -1,10 +1,10 @@
-const modelCreation = require("../library/modelCreation");
+const crudBuilderInitialized = require("../library/modelCreation");
 
 const crudBuilder = async(req, res) => {
     try{
         const {modelData} = req.body;
         console.log('Starting with the process of creating the model....')
-        const modelCreationResponse = await modelCreation(modelData);
+        const modelCreationResponse = await crudBuilderInitialized(modelData);
 
         return res.status(200).json('Creation Successfull');
     }catch(err){
