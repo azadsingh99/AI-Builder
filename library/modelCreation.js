@@ -3,6 +3,39 @@ const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
 
+const createBaseFile = async () => {
+    try {
+        const routeCode = `
+            require('dotenv').config();
+            const express = require('express');
+            const app = express();
+            const path = require('path');
+
+            const bodyParser = require('body-parser');
+            const crudRouter = require('./route/crudBuilderRouter');
+
+            app.use(bodyParser.json());
+            app.use(crudRouter);
+            app.use('/public', express.static(path.join(__dirname, './public')));
+
+            app.listen(process.env.PORT, () => {
+                console.log('Server is running on port 3001')
+            })
+    `;
+
+        const folderPath = path.join(__dirname, '../crudFolders/');
+        if (!fs.existsSync(folderPath))
+            fs.mkdirSync(folderPath, { recursive: true });
+
+        const filePath = path.join(folderPath, `index.js`);
+        fs.writeFileSync(filePath, routeCode);
+
+        return (`Routes ${name} created at ${filePath}`);
+    } catch (err) {
+
+    }
+}
+
 const generateModelIndividually = (modelName, fields) => {
     try {
         const schemaDefinition = {};
@@ -191,7 +224,7 @@ const zipFolder = (folderPath, zipFilePath) => {
     return new Promise((resolve, reject) => {
         const output = fs.createWriteStream(zipFilePath);
         const archive = archiver('zip', {
-            zlib: { level: 9 }  
+            zlib: { level: 9 }
         });
 
         output.on('close', () => resolve());
@@ -205,6 +238,8 @@ const zipFolder = (folderPath, zipFilePath) => {
 
 const crudBuilderInitialized = async (models) => {
     try {
+
+        await createBaseFile();
         for (let model of models) {
             const name = model.name;
             const fields = model.fields;
@@ -217,12 +252,12 @@ const crudBuilderInitialized = async (models) => {
         }
 
         const crudFolderPath = path.join(__dirname, '../crudFolders');
-        const zipFilePath = path.join(__dirname, '../crudFolders.zip');
-
+        const zipFolderPath = path.join(__dirname, '../public/zip');
+        const zipFilePath = path.join(zipFolderPath, 'crudFolders.zip');
         await zipFolder(crudFolderPath, zipFilePath);
 
         // Return the URL or path to the zip file
-        return `http://localhost:3001/path-to-zip/${path.basename(zipFilePath)}`;
+        return `http://localhost:3001/public/zip/${path.basename(zipFilePath)}`;
     } catch (err) {
         console.log(err);
         return err;

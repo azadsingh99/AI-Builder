@@ -1,6 +1,6 @@
 {
   "name": "mongodb-crud-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
@@ -32,5 +32,8 @@
     "express": "^4.19.2",
     "mongodb-crud-builder": "^1.0.2",
     "mongoose": "^8.4.4"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
