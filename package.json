@@ -14,7 +14,7 @@
     "generator",
     "express"
   ],
-  "author": "Your Name",
+  "author": "Azad Singh",
   "license": "MIT",
   "description": "A dynamic CRUD model generator using Mongoose.",
   "repository": {
@@ -32,8 +32,5 @@
     "express": "^4.19.2",
     "mongodb-crud-builder": "^1.0.2",
     "mongoose": "^8.4.4"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }

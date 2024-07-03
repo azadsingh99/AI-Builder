@@ -99,11 +99,11 @@ const generateCrudRouter = async (name) => {
         const router = express.Router();
         const { ${name}Creation, ${name}Updation, ${name}getAll, get${name}ById, ${name}deletion } = require('../controller/${name}Controller');
 
-        router.post('/create', ${name}Creation);
-        router.get('/', ${name}getAll);
-        router.get('/:id', get${name}ById);
-        router.patch('/:id', ${name}Updation);
-        router.delete('/:id', ${name}deletion);
+         router.post('/create/${name}', ${name}Creation);
+        router.get('/get/${name}', ${name}getAll);
+        router.get('/get/${name}:id', get${name}ById);
+        router.patch('${name}/:id', ${name}Updation);
+        router.delete('${name}/:id', ${name}deletion);
 
         module.exports = router;
     `;
