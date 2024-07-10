@@ -5,7 +5,7 @@ const archiver = require('archiver');
 
 const createBaseFile = async () => {
     try {
-        const routeCode = `
+        const indexCode = `
             require('dotenv').config();
             const express = require('express');
             const app = express();
@@ -21,16 +21,40 @@ const createBaseFile = async () => {
             app.listen(process.env.PORT, () => {
                 console.log('Server is running on port 3001')
             })
-    `;
+        `;
+
+        const databaseConnectionCode = `
+            const mongoose = require('mongoose');
+            require('dotenv').config();
+
+            const connectDB = async () => {
+                try {
+                    await mongoose.connect(process.env.MONGODB_URI, {
+                        useNewUrlParser: true,
+                        useUnifiedTopology: true,
+                        useCreateIndex: true,
+                        useFindAndModify: false
+                    });
+                    console.log('MongoDB connected successfully');
+                } catch (error) {
+                    console.error('Error connecting to MongoDB:', error.message);
+                    process.exit(1); // Exit process with failure
+                }
+            };
+
+            module.exports = connectDB;
+        `
 
         const folderPath = path.join(__dirname, '../crudFolders/');
         if (!fs.existsSync(folderPath))
             fs.mkdirSync(folderPath, { recursive: true });
 
-        const filePath = path.join(folderPath, `index.js`);
-        fs.writeFileSync(filePath, routeCode);
+        const indexFilePath = path.join(folderPath, `index.js`);
+        const dbfilePath = path.join(folderPath, 'db.js');
+        fs.writeFileSync(indexFilePath, indexCode);
+        fs.writeFileSync(dbfilePath, databaseConnectionCode);
 
-        return (`Routes ${name} created at ${filePath}`);
+        return (`Files Created`);
     } catch (err) {
 
     }
@@ -238,7 +262,6 @@ const zipFolder = (folderPath, zipFilePath) => {
 
 const crudBuilderInitialized = async (models) => {
     try {
-
         await createBaseFile();
         for (let model of models) {
             const name = model.name;
