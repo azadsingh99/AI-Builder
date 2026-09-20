@@ -1,22 +1,30 @@
 {
   "name": "mongodb-crud-builder",
-  "version": "1.0.5",
+  "version": "2.0.0",
+  "description": "Dynamic Express and Mongoose CRUD API generator with schema validation, pagination, filtering, search, sorting and soft delete.",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "node --test"
   },
   "keywords": [
+    "mongodb",
     "mongoose",
     "crud",
-    "dynamic",
-    "model",
+    "rest-api",
+    "express",
     "generator",
-    "express"
+    "scaffolding"
   ],
   "author": "Azad Singh",
   "license": "MIT",
-  "description": "A dynamic CRUD model generator using Mongoose.",
   "repository": {
     "type": "git",
     "url": "https://github.com/azadsingh99/AI-Builder.git"
@@ -27,10 +35,15 @@
   "homepage": "https://github.com/azadsingh99/AI-Builder#readme",
   "dependencies": {
     "archiver": "^7.0.1",
-    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "mongodb-crud-builder": "^1.0.2",
-    "mongoose": "^8.4.4"
-  }
+    "express": "^4.21.2",
+    "mongoose": "^8.18.1"
+  },
+  "files": [
+    "index.js",
+    "controller",
+    "route",
+    "utility",
+    "README.md"
+  ]
 }
