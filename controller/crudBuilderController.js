@@ -1,39 +1,55 @@
-const crudControllerCreation = require("../utility/controllerCreation");
-const generateModelIndividually = require("../utility/modelCreation");
-const generateCrudRouter = require("../utility/routerCreation");
-const zipFolder = require("../utility/zipCreation");
-
 const path = require('path');
-const fs = require('fs'); 
+const fs = require('fs/promises');
+const generateModel = require('../utility/modelCreation');
+const generateRouter = require('../utility/routerCreation');
+const generateController = require('../utility/controllerCreation');
+const createBaseFile = require('../utility/baseStrctureCreation');
+const zipFolder = require('../utility/zipCreation');
 
-const crudBuilder = async(req, res) => {
-    try{
-        await createBaseFile();
-        for (let model of req.body.modelData) {
-            const name = model.name;
-            const fields = model.fields;
-
-            console.log('Model Creation Initialized......');
-            await generateModelIndividually(name, fields);
-            console.log('Router Creation Initialized......');
-            await generateCrudRouter(name);
-            await crudControllerCreation(name, fields);
-        }
-
-        const crudFolderPath = path.join(__dirname, '../crudFolders');
-        const zipFolderPath = path.join(__dirname, '../public/zip');
-        const zipFilePath = path.join(zipFolderPath, 'crudFolders.zip');
-        await zipFolder(crudFolderPath, zipFilePath);
-
-        // Return the URL or path to the zip file
-        const modelCreationResponse =  `http://localhost:3001/public/zip/${path.basename(zipFilePath)}`;
-        return res.status(200).json(modelCreationResponse);
-    }catch(err){
-        console.log('ERROR ::: ', err);
-        return res.status(500).json({message: err.message});
+function validatePayload(body) {
+  if (!body || !Array.isArray(body.modelData) || body.modelData.length === 0) {
+    throw new Error('modelData must be a non-empty array');
+  }
+  for (const model of body.modelData) {
+    if (!model || typeof model.name !== 'string' || !model.name.trim()) {
+      throw new Error('Each model requires a non-empty name');
     }
+    if (!Array.isArray(model.fields)) throw new Error('fields must be an array');
+  }
 }
 
-module.exports = {
-    crudBuilder
-}
+const crudBuilder = async (req, res) => {
+  try {
+    validatePayload(req.body);
+    const root = path.join(__dirname, '../crudFolders');
+    const zipDir = path.join(__dirname, '../public/zip');
+    await fs.rm(root, { recursive: true, force: true });
+    await fs.mkdir(zipDir, { recursive: true });
+
+    const options = req.body.options || {};
+    await createBaseFile();
+
+    for (const model of req.body.modelData) {
+      await generateModel(model.name, model.fields, options);
+      await generateController(model.name, model.fields, options);
+      await generateRouter(model.name, options);
+    }
+
+    const zipPath = path.join(zipDir, 'crudFolders.zip');
+    await fs.rm(zipPath, { force: true });
+    await zipFolder(root, zipPath);
+
+    const baseUrl = (process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3001}`).replace(/\/$/, '');
+    res.status(200).json({
+      success: true,
+      message: 'CRUD project generated successfully',
+      models: req.body.modelData.map(m => m.name),
+      downloadUrl: `${baseUrl}/public/zip/crudFolders.zip`
+    });
+  } catch (error) {
+    console.error('CRUD Builder error:', error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { crudBuilder };
