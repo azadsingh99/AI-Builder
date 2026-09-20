@@ -1,29 +1,28 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs/promises');
 
-const generateCrudRouter = async (name) => {
-    const routeCode = `
-        const express = require('express');
-        const router = express.Router();
-        const { ${name}Creation, ${name}Updation, ${name}getAll, get${name}ById, ${name}deletion } = require('../controller/${name}Controller');
+const generateRouter = async (modelName, options = {}) => {
+  const safe = String(modelName).trim().replace(/[^a-zA-Z0-9_$]/g, '');
+  const restore = options.softDelete
+    ? `router.patch('/${safe}/:id/restore', controller.restore${safe});\n`
+    : '';
+  const code = `const express = require('express');
+const controller = require('../controller/${safe}Controller');
 
-         router.post('/create/${name}', ${name}Creation);
-        router.get('/get/${name}', ${name}getAll);
-        router.get('/get/${name}:id', get${name}ById);
-        router.patch('${name}/:id', ${name}Updation);
-        router.delete('${name}/:id', ${name}deletion);
+const router = express.Router();
 
-        module.exports = router;
-    `;
+router.post('/${safe}', controller.create${safe});
+router.get('/${safe}', controller.get${safe}s);
+router.get('/${safe}/:id', controller.get${safe}ById);
+router.patch('/${safe}/:id', controller.update${safe});
+router.delete('/${safe}/:id', controller.delete${safe});
+${restore}
+module.exports = router;
+`;
 
-    const folderPath = path.join(__dirname, '../crudFolders/router');
-    if (!fs.existsSync(folderPath))
-        fs.mkdirSync(folderPath, { recursive: true });
+  const dir = path.join(__dirname, '../crudFolders/route');
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, `${safe}Route.js`), code);
+};
 
-    const filePath = path.join(folderPath, `${name}Route.js`);
-    fs.writeFileSync(filePath, routeCode);
-
-    return (`Routes ${name} created at ${filePath}`);
-}
-
-module.exports = generateCrudRouter;
+module.exports = generateRouter;
